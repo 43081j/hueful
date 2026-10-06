@@ -1,5 +1,5 @@
 {
-  "name": "color-tool",
+  "name": "hueful",
   "version": "0.0.0-dev",
   "description": "Various tools for manipulating colours.",
   "main": "./lib/main.js",
@@ -33,13 +33,13 @@
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://github.com/43081j/color-tool#readme",
+  "homepage": "https://github.com/43081j/hueful#readme",
   "bugs": {
-    "url": "https://github.com/43081j/color-tool/issues"
+    "url": "https://github.com/43081j/hueful/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/43081j/color-tool.git"
+    "url": "git+https://github.com/43081j/hueful.git"
   },
   "devDependencies": {
     "@types/node": "^26.6.4",
