@@ -1,7 +1,7 @@
 import { type Coords, multiply } from '../math.js';
 import { linearSRGBToXYZ, xyzToLinearSRGB } from '../matrices.js';
 import * as names from '../names.js';
-import { parseColor, scaledChannel } from '../parse.js';
+import { parseColor, scaledChannel } from '../parser.js';
 
 type RGB = [r: number, g: number, b: number, alpha?: number];
 
@@ -143,6 +143,13 @@ export function toXYZ(r: number, g: number, b: number): Coords {
 export function fromXYZ(x: number, y: number, z: number): Coords {
   const [r, g, b] = multiply(xyzToLinearSRGB, x, y, z);
   return [fromLinear(r) * 255, fromLinear(g) * 255, fromLinear(b) * 255];
+}
+
+/**
+ * Inverts each 0-255 sRGB channel.
+ */
+export function invert(r: number, g: number, b: number): Coords {
+  return [255 - r, 255 - g, 255 - b];
 }
 
 let nameLookup: Map<number, string> | null = null;

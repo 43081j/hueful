@@ -3,7 +3,7 @@ import {
   parseColor,
   percentChannel,
   scaledChannel,
-} from '../parse.js';
+} from '../parser.js';
 import { type Coords, fromPolar, toPolar } from '../math.js';
 import * as lab from './lab.js';
 

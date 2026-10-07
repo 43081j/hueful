@@ -1,5 +1,5 @@
 import type { Coords } from '../math.js';
-import { hueChannel, parseColor, percentChannel } from '../parse.js';
+import { hueChannel, parseColor, percentChannel } from '../parser.js';
 import * as hsl from './hsl.js';
 import * as rgb from './rgb.js';
 
@@ -49,6 +49,30 @@ export function fromRGB(r: number, g: number, b: number): Coords {
   const w = Math.min(r, g, b) / 255;
   const bl = 1 - Math.max(r, g, b) / 255;
   return [h, w * 100, bl * 100];
+}
+
+/**
+ * Increases whiteness by a ratio of its current value.
+ */
+export function whiten(
+  h: number,
+  w: number,
+  b: number,
+  amount: number,
+): Coords {
+  return [h, w * (1 + amount), b];
+}
+
+/**
+ * Increases blackness by a ratio of its current value.
+ */
+export function blacken(
+  h: number,
+  w: number,
+  b: number,
+  amount: number,
+): Coords {
+  return [h, w, b * (1 + amount)];
 }
 
 export function toXYZ(h: number, w: number, b: number): Coords {

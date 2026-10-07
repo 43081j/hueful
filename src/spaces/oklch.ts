@@ -1,5 +1,5 @@
 import { type Coords, fromPolar, toPolar } from '../math.js';
-import { hueChannel, parseColor, scaledChannel } from '../parse.js';
+import { hueChannel, parseColor, scaledChannel } from '../parser.js';
 import * as oklab from './oklab.js';
 
 const names = ['oklch'];
