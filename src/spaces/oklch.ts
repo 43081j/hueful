@@ -1,4 +1,6 @@
+import { type Coords, fromPolar, toPolar } from '../math.js';
 import { hueChannel, parseColor, scaledChannel } from '../parse.js';
+import * as oklab from './oklab.js';
 
 const names = ['oklch'];
 const lightnessChannel = scaledChannel(1);
@@ -20,4 +22,23 @@ export function format(
     return `oklch(${l} ${c} ${h})`;
   }
   return `oklch(${l} ${c} ${h} / ${alpha})`;
+}
+
+export function toOKLab(l: number, c: number, h: number): Coords {
+  return [l, ...fromPolar(c, h)];
+}
+
+/**
+ * Converts OKLab to OKLCH. Achromatic colours have a hue of 0.
+ */
+export function fromOKLab(l: number, a: number, b: number): Coords {
+  return [l, ...toPolar(a, b, 0.000004)];
+}
+
+export function toXYZ(l: number, c: number, h: number): Coords {
+  return oklab.toXYZ(...toOKLab(l, c, h));
+}
+
+export function fromXYZ(x: number, y: number, z: number): Coords {
+  return fromOKLab(...oklab.fromXYZ(x, y, z));
 }

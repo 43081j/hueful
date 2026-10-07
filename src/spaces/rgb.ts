@@ -1,3 +1,5 @@
+import { type Coords, multiply } from '../math.js';
+import { linearSRGBToXYZ, xyzToLinearSRGB } from '../matrices.js';
 import * as names from '../names.js';
 import { parseColor, scaledChannel } from '../parse.js';
 
@@ -104,6 +106,44 @@ export function formatAsPercent(
   return `rgb(${rgb} / ${alpha})`;
 }
 
+// sRGB transfer functions, extended to negative values by reflection
+function toLinear(value: number): number {
+  const abs = Math.abs(value);
+  if (abs <= 0.04045) {
+    return value / 12.92;
+  }
+  return Math.sign(value) * ((abs + 0.055) / 1.055) ** 2.4;
+}
+
+function fromLinear(value: number): number {
+  const abs = Math.abs(value);
+  if (abs <= 0.0031308) {
+    return value * 12.92;
+  }
+  return Math.sign(value) * (1.055 * abs ** (1 / 2.4) - 0.055);
+}
+
+/**
+ * Converts 0-255 sRGB channels to XYZ-D65.
+ */
+export function toXYZ(r: number, g: number, b: number): Coords {
+  return multiply(
+    linearSRGBToXYZ,
+    toLinear(r / 255),
+    toLinear(g / 255),
+    toLinear(b / 255),
+  );
+}
+
+/**
+ * Converts XYZ-D65 to 0-255 sRGB channels. Out of gamut colours produce
+ * values outside of 0-255.
+ */
+export function fromXYZ(x: number, y: number, z: number): Coords {
+  const [r, g, b] = multiply(xyzToLinearSRGB, x, y, z);
+  return [fromLinear(r) * 255, fromLinear(g) * 255, fromLinear(b) * 255];
+}
+
 let nameLookup: Map<number, string> | null = null;
 
 export function formatAsName(
@@ -122,6 +162,12 @@ export function formatAsName(
     }
   }
   if (alpha !== undefined && alpha !== 1) {
+    return null;
+  }
+  r = Math.round(r);
+  g = Math.round(g);
+  b = Math.round(b);
+  if (Math.min(r, g, b) < 0 || Math.max(r, g, b) > 255) {
     return null;
   }
   return nameLookup.get((r << 16) | (g << 8) | b) ?? null;

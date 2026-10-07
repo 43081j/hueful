@@ -1,3 +1,5 @@
+import { type Coords, multiply } from '../math.js';
+import { lmsToOKLab, lmsToXYZ, oklabToLMS, xyzToLMS } from '../matrices.js';
 import { parseColor, scaledChannel } from '../parse.js';
 
 const names = ['oklab'];
@@ -20,4 +22,14 @@ export function format(
     return `oklab(${l} ${a} ${b})`;
   }
   return `oklab(${l} ${a} ${b} / ${alpha})`;
+}
+
+export function toXYZ(l: number, a: number, b: number): Coords {
+  const [lc, mc, sc] = multiply(oklabToLMS, l, a, b);
+  return multiply(lmsToXYZ, lc ** 3, mc ** 3, sc ** 3);
+}
+
+export function fromXYZ(x: number, y: number, z: number): Coords {
+  const [lc, mc, sc] = multiply(xyzToLMS, x, y, z);
+  return multiply(lmsToOKLab, Math.cbrt(lc), Math.cbrt(mc), Math.cbrt(sc));
 }
