@@ -1,13 +1,16 @@
 const numberPattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?$/;
 const tokenPattern = /\S+/g;
+const commaTokenPattern = /[^\s,]+/g;
 
 /**
  * Extracts the arguments of a colour function in the form
- * `name(A B C[ / D])` as `[A, B, C, D?]`.
+ * `name(A B C[ / D])` as `[A, B, C, D?]`. When `allowCommas` is set, the
+ * legacy `name(A, B, C[, D])` form is also accepted.
  */
 export function parseFunction(
   input: string,
   names: readonly string[],
+  allowCommas = false,
 ): string[] | null {
   const open = input.indexOf('(');
   if (open === -1 || !input.endsWith(')')) {
@@ -24,16 +27,19 @@ export function parseFunction(
   }
 
   const channels = input.slice(open + 1, slash === -1 ? close : slash);
+  const commas = allowCommas && channels.includes(',');
+  const pattern = commas ? commaTokenPattern : tokenPattern;
+  const maxArgs = commas && slash === -1 ? 4 : 3;
   const args: string[] = [];
-  tokenPattern.lastIndex = 0;
+  pattern.lastIndex = 0;
   let match: RegExpExecArray | null;
-  while ((match = tokenPattern.exec(channels)) !== null) {
-    if (args.length === 3) {
+  while ((match = pattern.exec(channels)) !== null) {
+    if (args.length === maxArgs) {
       return null;
     }
     args.push(match[0]);
   }
-  if (args.length !== 3) {
+  if (args.length < 3) {
     return null;
   }
 
