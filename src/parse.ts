@@ -1,8 +1,11 @@
 import { alphaUnits, angleUnits, toAlpha, toDegrees } from './units.js';
 
 const numberPattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?$/;
-const tokenPattern = /\S+/g;
-const commaTokenPattern = /[^\s,]+/g;
+
+// CSS whitespace: tab, line feed, form feed, carriage return, space
+function isWhitespace(code: number): boolean {
+  return code === 32 || code === 9 || code === 10 || code === 12 || code === 13;
+}
 
 /**
  * Extracts the arguments of a colour function in the form
@@ -30,16 +33,22 @@ export function parseFunction(
 
   const channels = input.slice(open + 1, slash === -1 ? close : slash);
   const commas = allowCommas && channels.includes(',');
-  const pattern = commas ? commaTokenPattern : tokenPattern;
   const maxArgs = commas && slash === -1 ? 4 : 3;
   const args: string[] = [];
-  pattern.lastIndex = 0;
-  let match: RegExpExecArray | null;
-  while ((match = pattern.exec(channels)) !== null) {
-    if (args.length === maxArgs) {
-      return null;
+  let start = -1;
+  for (let i = 0; i <= channels.length; i++) {
+    const code = i < channels.length ? channels.charCodeAt(i) : 32;
+    if (isWhitespace(code) || (commas && code === 44)) {
+      if (start !== -1) {
+        if (args.length === maxArgs) {
+          return null;
+        }
+        args.push(channels.slice(start, i));
+        start = -1;
+      }
+    } else if (start === -1) {
+      start = i;
     }
-    args.push(match[0]);
   }
   if (args.length < 3) {
     return null;

@@ -8,9 +8,10 @@ type RGB = [r: number, g: number, b: number, alpha?: number];
 const functionNames = ['rgb', 'rgba'];
 const rgbChannel = scaledChannel(255);
 const hexPattern = /^#(?:[\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i;
+const allNames = Object.keys(names);
 
 function parseHex(input: string): RGB | null {
-  if (!hexPattern.test(input)) {
+  if (!input.startsWith('#') || !hexPattern.test(input)) {
     return null;
   }
 
@@ -48,7 +49,7 @@ function parseName(input: string): RGB | null {
   if (name === 'transparent') {
     return [0, 0, 0, 0];
   }
-  if (!Object.hasOwn(names, name)) {
+  if (!allNames.includes(name)) {
     return null;
   }
   const [r, g, b] = names[name as keyof typeof names];

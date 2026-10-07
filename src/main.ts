@@ -20,7 +20,6 @@ export type ParseResult = {
     value: NonNullable<ReturnType<(typeof spaces)[K]['parse']>>;
   };
 }[Space];
-type Parser = (input: string) => ParseResult | null;
 
 export function convert(
   from: Space,
@@ -35,32 +34,35 @@ export function convert(
   return alpha === undefined ? coords : [...coords, alpha];
 }
 
-function parserFor<K extends Space>(space: K): Parser {
-  const parseSpace = spaces[space].parse;
-  return (input) => {
-    const value = parseSpace(input);
-    return value && ({ space, value } as ParseResult);
-  };
+function result<K extends Space>(
+  space: K,
+  value: Extract<ParseResult, { space: K }>['value'] | null,
+): ParseResult | null {
+  return value && ({ space, value } as ParseResult);
 }
-
-const parseRGB = parserFor('rgb');
-const parseHSL = parserFor('hsl');
-
-const parsers = new Map<string, Parser>([
-  ['', parseRGB],
-  ['rgb', parseRGB],
-  ['rgba', parseRGB],
-  ['hsl', parseHSL],
-  ['hsla', parseHSL],
-  ['hwb', parserFor('hwb')],
-  ['lab', parserFor('lab')],
-  ['lch', parserFor('lch')],
-  ['oklab', parserFor('oklab')],
-  ['oklch', parserFor('oklch')],
-]);
 
 export function parse(input: string): ParseResult | null {
   const open = input.indexOf('(');
   const fn = open === -1 ? '' : input.slice(0, open).toLowerCase();
-  return parsers.get(fn)?.(input) ?? null;
+  switch (fn) {
+    case '':
+    case 'rgb':
+    case 'rgba':
+      return result('rgb', rgb.parse(input));
+    case 'hsl':
+    case 'hsla':
+      return result('hsl', hsl.parse(input));
+    case 'hwb':
+      return result('hwb', hwb.parse(input));
+    case 'lab':
+      return result('lab', lab.parse(input));
+    case 'lch':
+      return result('lch', lch.parse(input));
+    case 'oklab':
+      return result('oklab', oklab.parse(input));
+    case 'oklch':
+      return result('oklch', oklch.parse(input));
+    default:
+      return null;
+  }
 }
