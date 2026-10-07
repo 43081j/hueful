@@ -97,7 +97,7 @@ export function parseComponent<TUnit extends string>(
     return null;
   }
 
-  return [Number(value), unit as TUnit];
+  return [Number(value), unit === '' ? null : (unit as TUnit)];
 }
 
 export interface Channel {
