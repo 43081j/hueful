@@ -73,6 +73,10 @@ names.rebeccapurple; // [102, 51, 153]
 These functions work across all spaces. They take the space of the input
 colour and return a colour in that same space.
 
+> **NOTE**: Results are not clamped, so colours in bounded spaces (e.g. RGB)
+> may fall outside their valid range. For example,
+> `lighten('rgb', [255, 0, 0], 0.5)` will return `[382.5, 0, 0]`.
+
 ```ts
 import { lighten, mix } from 'hueful';
 
