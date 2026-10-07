@@ -1,5 +1,6 @@
 import * as names from '../names.js';
 import { parseComponent, parseFunction } from '../parse.js';
+import { alphaUnits, toAlpha } from '../units.js';
 
 type RGB = [r: number, g: number, b: number, alpha?: number];
 
@@ -55,11 +56,11 @@ function parseRGBFunction(input: string): RGB | null {
     return [r, g, b];
   }
 
-  const alpha = parseComponent(args[3], percentUnits);
+  const alpha = parseComponent(args[3], alphaUnits);
   if (alpha === null) {
     return null;
   }
-  const a = alpha[1] === '%' ? alpha[0] / 100 : alpha[0];
+  const a = toAlpha(alpha[0], alpha[1]);
 
   return [r, g, b, a];
 }

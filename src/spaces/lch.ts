@@ -1,3 +1,44 @@
+import { parseComponent, parseFunction } from '../parse.js';
+import { alphaUnits, angleUnits, toAlpha, toDegrees } from '../units.js';
+
+const names = ['lch'];
+const percentUnits = ['%'];
+
+/** Percentage reference range for chroma (100% = 150). */
+const chromaPercentScale = 150 / 100;
+
+export function parse(
+  input: string,
+): [l: number, c: number, h: number, alpha?: number] | null {
+  const args = parseFunction(input, names);
+  if (args === null) {
+    return null;
+  }
+
+  const lightness = parseComponent(args[0]!, percentUnits);
+  const chroma = parseComponent(args[1]!, percentUnits);
+  const hue = parseComponent(args[2]!, angleUnits);
+  if (lightness === null || chroma === null || hue === null) {
+    return null;
+  }
+
+  const l = lightness[0];
+  const c = chroma[1] === '%' ? chroma[0] * chromaPercentScale : chroma[0];
+  const h = toDegrees(hue[0], hue[1]);
+
+  if (args[3] === undefined) {
+    return [l, c, h];
+  }
+
+  const alpha = parseComponent(args[3], alphaUnits);
+  if (alpha === null) {
+    return null;
+  }
+  const a = toAlpha(alpha[0], alpha[1]);
+
+  return [l, c, h, a];
+}
+
 export function format(
   l: number,
   c: number,

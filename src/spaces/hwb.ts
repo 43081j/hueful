@@ -1,5 +1,5 @@
 import { parseComponent, parseFunction } from '../parse.js';
-import { angleUnits, toDegrees } from '../units.js';
+import { alphaUnits, angleUnits, toAlpha, toDegrees } from '../units.js';
 
 const names = ['hwb'];
 const percentUnits = ['%'];
@@ -25,11 +25,11 @@ export function parse(
     return [h, whiteness[0], blackness[0]];
   }
 
-  const alpha = parseComponent(args[3], percentUnits);
+  const alpha = parseComponent(args[3], alphaUnits);
   if (alpha === null) {
     return null;
   }
-  const a = alpha[1] === '%' ? alpha[0] / 100 : alpha[0];
+  const a = toAlpha(alpha[0], alpha[1]);
 
   return [h, whiteness[0], blackness[0], a];
 }
