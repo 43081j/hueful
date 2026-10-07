@@ -1,37 +1,18 @@
-import { parseComponent, parseFunction } from '../parse.js';
-import { alphaUnits, angleUnits, toAlpha, toDegrees } from '../units.js';
+import { hueChannel, parseColor, percentChannel } from '../parse.js';
 
 const names = ['hsl', 'hsla'];
-const percentUnits = ['%'];
 
 export function parse(
   input: string,
 ): [h: number, s: number, l: number, alpha?: number] | null {
-  const args = parseFunction(input, names, true);
-  if (args === null) {
-    return null;
-  }
-
-  const hue = parseComponent(args[0]!, angleUnits);
-  const saturation = parseComponent(args[1]!, percentUnits);
-  const lightness = parseComponent(args[2]!, percentUnits);
-  if (hue === null || saturation === null || lightness === null) {
-    return null;
-  }
-
-  const h = toDegrees(hue[0], hue[1]);
-
-  if (args[3] === undefined) {
-    return [h, saturation[0], lightness[0]];
-  }
-
-  const alpha = parseComponent(args[3], alphaUnits);
-  if (alpha === null) {
-    return null;
-  }
-  const a = toAlpha(alpha[0], alpha[1]);
-
-  return [h, saturation[0], lightness[0], a];
+  return parseColor(
+    input,
+    names,
+    hueChannel,
+    percentChannel,
+    percentChannel,
+    true,
+  );
 }
 
 export function format(

@@ -1,3 +1,5 @@
+import { alphaUnits, angleUnits, toAlpha, toDegrees } from './units.js';
+
 const numberPattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?$/;
 const tokenPattern = /\S+/g;
 const commaTokenPattern = /[^\s,]+/g;
@@ -87,4 +89,68 @@ export function parseComponent<TUnit extends string>(
   }
 
   return [Number(value), unit as TUnit];
+}
+
+export interface Channel {
+  units: readonly string[];
+  transform?: (value: number, unit: string | null) => number;
+}
+
+// Hue represented by <angle> or <number>
+export const hueChannel: Channel = {
+  units: angleUnits,
+  transform: toDegrees,
+};
+
+// Percentage represented by <percentage> or <number>
+export const percentChannel: Channel = { units: ['%'] };
+
+// Scale represented the same as percentChannel, but scaled to a given range
+export function scaledChannel(range: number): Channel {
+  return {
+    units: ['%'],
+    transform: (value, unit) => (unit === '%' ? (value * range) / 100 : value),
+  };
+}
+
+function parseChannel(token: string, channel: Channel): number | null {
+  const component = parseComponent(token, channel.units);
+  if (component === null) {
+    return null;
+  }
+  return channel.transform
+    ? channel.transform(component[0], component[1])
+    : component[0];
+}
+
+export function parseColor(
+  input: string,
+  names: readonly string[],
+  channel0: Channel,
+  channel1: Channel,
+  channel2: Channel,
+  allowCommas = false,
+): [number, number, number, alpha?: number] | null {
+  const args = parseFunction(input, names, allowCommas);
+  if (args === null) {
+    return null;
+  }
+
+  const c0 = parseChannel(args[0]!, channel0);
+  const c1 = parseChannel(args[1]!, channel1);
+  const c2 = parseChannel(args[2]!, channel2);
+  if (c0 === null || c1 === null || c2 === null) {
+    return null;
+  }
+
+  if (args[3] === undefined) {
+    return [c0, c1, c2];
+  }
+
+  const alpha = parseComponent(args[3], alphaUnits);
+  if (alpha === null) {
+    return null;
+  }
+
+  return [c0, c1, c2, toAlpha(alpha[0], alpha[1])];
 }

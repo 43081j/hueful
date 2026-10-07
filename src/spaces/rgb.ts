@@ -1,16 +1,11 @@
 import * as names from '../names.js';
-import { parseComponent, parseFunction } from '../parse.js';
-import { alphaUnits, toAlpha } from '../units.js';
+import { parseColor, scaledChannel } from '../parse.js';
 
 type RGB = [r: number, g: number, b: number, alpha?: number];
 
 const functionNames = ['rgb', 'rgba'];
-const percentUnits = ['%'];
+const rgbChannel = scaledChannel(255);
 const hexPattern = /^#(?:[\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i;
-
-function toChannel(component: [number, string | null]): number {
-  return component[1] === '%' ? (component[0] * 255) / 100 : component[0];
-}
 
 function parseHex(input: string): RGB | null {
   if (!hexPattern.test(input)) {
@@ -36,33 +31,14 @@ function parseHex(input: string): RGB | null {
 }
 
 function parseRGBFunction(input: string): RGB | null {
-  const args = parseFunction(input, functionNames, true);
-  if (args === null) {
-    return null;
-  }
-
-  const red = parseComponent(args[0]!, percentUnits);
-  const green = parseComponent(args[1]!, percentUnits);
-  const blue = parseComponent(args[2]!, percentUnits);
-  if (red === null || green === null || blue === null) {
-    return null;
-  }
-
-  const r = toChannel(red);
-  const g = toChannel(green);
-  const b = toChannel(blue);
-
-  if (args[3] === undefined) {
-    return [r, g, b];
-  }
-
-  const alpha = parseComponent(args[3], alphaUnits);
-  if (alpha === null) {
-    return null;
-  }
-  const a = toAlpha(alpha[0], alpha[1]);
-
-  return [r, g, b, a];
+  return parseColor(
+    input,
+    functionNames,
+    rgbChannel,
+    rgbChannel,
+    rgbChannel,
+    true,
+  );
 }
 
 function parseName(input: string): RGB | null {
