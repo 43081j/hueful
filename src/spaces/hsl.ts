@@ -1,5 +1,5 @@
 import type { Coords } from '../math.js';
-import { hueChannel, parseColor, percentChannel } from '../parse.js';
+import { hueChannel, parseColor, percentChannel } from '../parser.js';
 import * as rgb from './rgb.js';
 
 const names = ['hsl', 'hsla'];

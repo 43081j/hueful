@@ -6,7 +6,7 @@ import {
   parseFunction,
   percentChannel,
   scaledChannel,
-} from './parse.js';
+} from './parser.js';
 import { angleUnits } from './units.js';
 
 describe('parseFunction', () => {

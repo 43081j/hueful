@@ -1,6 +1,6 @@
 import { type Coords, multiply } from '../math.js';
 import { lmsToOKLab, lmsToXYZ, oklabToLMS, xyzToLMS } from '../matrices.js';
-import { parseColor, scaledChannel } from '../parse.js';
+import { parseColor, scaledChannel } from '../parser.js';
 
 const names = ['oklab'];
 const lightnessChannel = scaledChannel(1);

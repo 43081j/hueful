@@ -1,6 +1,6 @@
 import { type Coords, multiply } from '../math.js';
 import { d50ToD65, d65ToD50 } from '../matrices.js';
-import { parseColor, percentChannel, scaledChannel } from '../parse.js';
+import { parseColor, percentChannel, scaledChannel } from '../parser.js';
 
 const names = ['lab'];
 const abChannel = scaledChannel(125);
