@@ -1,6 +1,6 @@
 import { type Space, spaces } from './spaces/index.js';
 
-const { rgb, hsl, hwb, lab, lch, oklab, oklch } = spaces;
+const { rgb, hsl, hwb, lab, lch, oklab, oklch, cmyk } = spaces;
 
 export type ParseResult = {
   [K in Space]: {
@@ -37,6 +37,8 @@ export function parse(input: string): ParseResult | null {
       return result('oklab', oklab.parse(input));
     case 'oklch':
       return result('oklch', oklch.parse(input));
+    case 'device-cmyk':
+      return result('cmyk', cmyk.parse(input));
     default:
       return null;
   }

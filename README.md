@@ -14,7 +14,7 @@ npm i -S hueful
 
 ## Usage
 
-Colours are represented as plain tuples of `[c0, c1, c2, alpha?]` in a given
+Colours are represented as plain tuples of `[...channels, alpha?]` in a given
 colour space.
 
 ### `parse(input)`
@@ -96,8 +96,8 @@ mix('rgb', [255, 0, 0], [0, 0, 255]);
 | `grayscale(space, color)`               | Removes all chroma, keeping perceived lightness.           |
 | `rotateHue(space, color, degrees)`      | Rotates the OKLCH hue by the given number of degrees.      |
 | `mix(space, a, b, weight?)`             | Mixes two colours in OKLab. `weight` is the share of `b`.  |
-| `fadeIn(color, amount)`                 | Increases alpha by a ratio of its current value.           |
-| `fadeOut(color, amount)`                | Decreases alpha by a ratio of its current value.           |
+| `fadeIn(space, color, amount)`          | Increases alpha by a ratio of its current value.           |
+| `fadeOut(space, color, amount)`         | Decreases alpha by a ratio of its current value.           |
 
 ## Analysis
 

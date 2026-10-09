@@ -108,6 +108,30 @@ describe('parseFunction', () => {
       expect(parseFunction('rgb(1 2 3 4)', names, true)).toBeNull();
     });
   });
+
+  describe('with a channel count', () => {
+    it('parses the given number of channels', () => {
+      expect(parseFunction('f(1 2 3 4 / 0.5)', ['f'], false, 4)).toEqual([
+        '1',
+        '2',
+        '3',
+        '4',
+        '0.5',
+      ]);
+      expect(parseFunction('f(1, 2, 3, 4, 0.5)', ['f'], true, 4)).toEqual([
+        '1',
+        '2',
+        '3',
+        '4',
+        '0.5',
+      ]);
+    });
+
+    it('returns null for too few or too many arguments', () => {
+      expect(parseFunction('f(1 2 3)', ['f'], false, 4)).toBeNull();
+      expect(parseFunction('f(1 2 3 4 5)', ['f'], false, 4)).toBeNull();
+    });
+  });
 });
 
 describe('parseComponent', () => {
