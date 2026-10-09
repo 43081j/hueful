@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { convert } from './convert.js';
+import { convert, type ParsedColor } from './convert.js';
 import {
   darken,
   desaturate,
@@ -11,9 +11,11 @@ import {
   rotateHue,
   saturate,
 } from './manipulation.js';
-import type { ColorLike } from './types.js';
-
-function expectClose(actual: ColorLike, expected: ColorLike): void {
+import type { Space } from './spaces/index.js';
+function expectClose(
+  actual: ParsedColor<Space>,
+  expected: ParsedColor<Space>,
+): void {
   expect(actual).toHaveLength(expected.length);
   actual.forEach((value, i) => expect(value).toBeCloseTo(expected[i]!, 4));
 }
@@ -24,7 +26,7 @@ describe('lighten', () => {
   });
 
   it('returns the input space and preserves alpha', () => {
-    const red: ColorLike = [255, 0, 0, 0.5];
+    const red: ParsedColor<'rgb'> = [255, 0, 0, 0.5];
     const result = lighten('rgb', red, 0.1);
     const [l] = convert('rgb', 'oklch', red);
     const [rl] = convert('rgb', 'oklch', result);
@@ -67,16 +69,25 @@ describe('rotateHue', () => {
 
 describe('fadeOut / fadeIn', () => {
   it('treats a missing alpha as opaque when fading out', () => {
-    expect(fadeOut([1, 2, 3], 0.25)).toEqual([1, 2, 3, 0.75]);
+    expect(fadeOut('rgb', [1, 2, 3], 0.25)).toEqual([1, 2, 3, 0.75]);
   });
 
   it('leaves a missing alpha alone when fading in', () => {
-    expect(fadeIn([1, 2, 3], 0.25)).toEqual([1, 2, 3]);
+    expect(fadeIn('rgb', [1, 2, 3], 0.25)).toEqual([1, 2, 3]);
   });
 
   it('clamps alpha to 0-1', () => {
-    expect(fadeIn([1, 2, 3, 0.8], 1)).toEqual([1, 2, 3, 1]);
-    expect(fadeOut([1, 2, 3, 0.8], 2)).toEqual([1, 2, 3, 0]);
+    expect(fadeIn('rgb', [1, 2, 3, 0.8], 1)).toEqual([1, 2, 3, 1]);
+    expect(fadeOut('rgb', [1, 2, 3, 0.8], 2)).toEqual([1, 2, 3, 0]);
+  });
+
+  it('treats the channel after the last colour channel as alpha', () => {
+    expect(fadeOut('cmyk', [0.1, 0.2, 0.3, 0.4], 0.25)).toEqual([
+      0.1, 0.2, 0.3, 0.4, 0.75,
+    ]);
+    expect(fadeIn('cmyk', [0.1, 0.2, 0.3, 0.4], 0.25)).toEqual([
+      0.1, 0.2, 0.3, 0.4,
+    ]);
   });
 });
 

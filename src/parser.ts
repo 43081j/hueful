@@ -16,6 +16,7 @@ export function parseFunction(
   input: string,
   names: readonly string[],
   allowCommas = false,
+  count = 3,
 ): string[] | null {
   const open = input.indexOf('(');
   if (open === -1 || !input.endsWith(')')) {
@@ -33,7 +34,7 @@ export function parseFunction(
 
   const channels = input.slice(open + 1, slash === -1 ? close : slash);
   const commas = allowCommas && channels.includes(',');
-  const maxArgs = commas && slash === -1 ? 4 : 3;
+  const maxArgs = commas && slash === -1 ? count + 1 : count;
   const args: string[] = [];
   let start = -1;
   for (let i = 0; i <= channels.length; i++) {
@@ -50,7 +51,7 @@ export function parseFunction(
       start = i;
     }
   }
-  if (args.length < 3) {
+  if (args.length < count) {
     return null;
   }
 

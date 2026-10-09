@@ -3,14 +3,17 @@ import { linearSRGBToXYZ, xyzToLinearSRGB } from '../matrices.js';
 import * as names from '../names.js';
 import { parseColor, scaledChannel } from '../parser.js';
 
-type RGB = [r: number, g: number, b: number, alpha?: number];
+export const channelCount = 3;
+
+type RGB = readonly [r: number, g: number, b: number];
+type RGBAlpha = readonly [...RGB, alpha?: number];
 
 const functionNames = ['rgb', 'rgba'];
 const rgbChannel = scaledChannel(255);
 const hexPattern = /^#(?:[\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i;
 const allNames = Object.keys(names);
 
-function parseHex(input: string): RGB | null {
+function parseHex(input: string): RGBAlpha | null {
   if (!input.startsWith('#') || !hexPattern.test(input)) {
     return null;
   }
@@ -33,7 +36,7 @@ function parseHex(input: string): RGB | null {
   }
 }
 
-function parseRGBFunction(input: string): RGB | null {
+function parseRGBFunction(input: string): RGBAlpha | null {
   return parseColor(
     input,
     functionNames,
@@ -44,7 +47,7 @@ function parseRGBFunction(input: string): RGB | null {
   );
 }
 
-function parseName(input: string): RGB | null {
+function parseName(input: string): RGBAlpha | null {
   const name = input.toLowerCase();
   if (name === 'transparent') {
     return [0, 0, 0, 0];
@@ -56,7 +59,7 @@ function parseName(input: string): RGB | null {
   return [r, g, b];
 }
 
-export function parse(input: string): RGB | null {
+export function parse(input: string): RGBAlpha | null {
   return parseHex(input) ?? parseRGBFunction(input) ?? parseName(input);
 }
 
@@ -65,38 +68,28 @@ function valueToHex(value: number): string {
   return hex.length === 1 ? '0' + hex : hex;
 }
 
-export function formatAsHex(
-  r: number,
-  g: number,
-  b: number,
-  alpha?: number,
-): string {
+export const formatAsHex: (...args: RGBAlpha) => string = (r, g, b, alpha) => {
   const rHex = valueToHex(r);
   const gHex = valueToHex(g);
   const bHex = valueToHex(b);
   const alphaHex = alpha !== undefined ? valueToHex(alpha * 255) : '';
   return `#${rHex}${gHex}${bHex}${alphaHex}`;
-}
+};
 
-export function format(
-  r: number,
-  g: number,
-  b: number,
-  alpha?: number,
-): string {
+export const format: (...args: RGBAlpha) => string = (r, g, b, alpha) => {
   const rgb = `${Math.round(r)} ${Math.round(g)} ${Math.round(b)}`;
   if (alpha === undefined || alpha === 1) {
     return `rgb(${rgb})`;
   }
   return `rgb(${rgb} / ${alpha})`;
-}
+};
 
-export function formatAsPercent(
-  r: number,
-  g: number,
-  b: number,
-  alpha?: number,
-): string {
+export const formatAsPercent: (...args: RGBAlpha) => string = (
+  r,
+  g,
+  b,
+  alpha,
+) => {
   const rPercent = Math.round((r / 255) * 100);
   const gPercent = Math.round((g / 255) * 100);
   const bPercent = Math.round((b / 255) * 100);
@@ -105,7 +98,7 @@ export function formatAsPercent(
     return `rgb(${rgb})`;
   }
   return `rgb(${rgb} / ${alpha})`;
-}
+};
 
 // sRGB transfer functions, extended to negative values by reflection
 function toLinear(value: number): number {
@@ -127,39 +120,39 @@ function fromLinear(value: number): number {
 /**
  * Converts 0-255 sRGB channels to XYZ-D65.
  */
-export function toXYZ(r: number, g: number, b: number): Coords {
+export const toXYZ: (...args: RGB) => Coords = (r, g, b) => {
   return multiply(
     linearSRGBToXYZ,
     toLinear(r / 255),
     toLinear(g / 255),
     toLinear(b / 255),
   );
-}
+};
 
 /**
  * Converts XYZ-D65 to 0-255 sRGB channels. Out of gamut colours produce
  * values outside of 0-255.
  */
-export function fromXYZ(x: number, y: number, z: number): Coords {
+export const fromXYZ: (...args: Coords) => RGB = (x, y, z) => {
   const [r, g, b] = multiply(xyzToLinearSRGB, x, y, z);
   return [fromLinear(r) * 255, fromLinear(g) * 255, fromLinear(b) * 255];
-}
+};
 
 /**
  * Inverts each 0-255 sRGB channel.
  */
-export function invert(r: number, g: number, b: number): Coords {
+export const invert: (...args: RGB) => RGB = (r, g, b) => {
   return [255 - r, 255 - g, 255 - b];
-}
+};
 
 let nameLookup: Map<number, string> | null = null;
 
-export function formatAsName(
-  r: number,
-  g: number,
-  b: number,
-  alpha?: number,
-): string | null {
+export const formatAsName: (...args: RGBAlpha) => string | null = (
+  r,
+  g,
+  b,
+  alpha,
+) => {
   if (nameLookup === null) {
     nameLookup = new Map();
     for (const [name, [nr, ng, nb]] of Object.entries(names)) {
@@ -179,4 +172,4 @@ export function formatAsName(
     return null;
   }
   return nameLookup.get((r << 16) | (g << 8) | b) ?? null;
-}
+};
