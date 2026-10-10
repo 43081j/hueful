@@ -10,6 +10,12 @@ export function convert<TFrom extends Space, TTo extends Space>(
   to: TTo,
   color: ParsedColor<TFrom>,
 ): ParsedColor<TTo> {
+  if (!spaces.hasOwnProperty(from)) {
+    throw new Error(`Unknown color space: ${from}`);
+  }
+  if (!spaces.hasOwnProperty(to)) {
+    throw new Error(`Unknown color space: ${to}`);
+  }
   const channelCount = spaces[from].channelCount;
   const channels = color.slice(0, channelCount) as number[];
   const alpha = color[channelCount];
