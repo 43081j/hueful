@@ -42,11 +42,11 @@
     "url": "git+https://github.com/43081j/hueful.git"
   },
   "devDependencies": {
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.6",
     "@typescript/native-preview": "^7.0.0-dev.20260509.2",
-    "@vitest/coverage-v8": "^5.0.3",
-    "oxfmt": "^0.72.0",
-    "oxlint": "^1.63.0",
+    "@vitest/coverage-v8": "^5.0.5",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
     "vitest": "^5.0.3"
   }
 }
