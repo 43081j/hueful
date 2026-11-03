@@ -10,3 +10,4 @@ export { parse, type ParseResult } from './parse.js';
 export { convert } from './convert.js';
 export * from './manipulation.js';
 export * from './analysis.js';
+export { inGamut, toGamut } from './gamut.js';

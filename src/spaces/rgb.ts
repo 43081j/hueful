@@ -173,3 +173,7 @@ export const formatAsName: (...args: RGBAlpha) => string | null = (
   }
   return nameLookup.get((r << 16) | (g << 8) | b) ?? null;
 };
+
+// Just here to satisfy the RGB family shortcut in the converter
+export const toRGB: (...args: RGB) => Coords = (r, g, b) => [r, g, b];
+export const fromRGB: (...args: Coords) => RGB = (r, g, b) => [r, g, b];
