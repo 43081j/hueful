@@ -5,6 +5,11 @@ export type ParsedColor<T extends Space> = NonNullable<
   ReturnType<(typeof spaces)[T]['parse']>
 >;
 
+type RGBFamily = 'rgb' | 'hsl' | 'hwb' | 'cmyk';
+
+const isRGBFamily = (space: Space): space is RGBFamily =>
+  space === 'rgb' || space === 'hsl' || space === 'hwb' || space === 'cmyk';
+
 export function convert<TFrom extends Space, TTo extends Space>(
   from: TFrom,
   to: TTo,
@@ -19,11 +24,19 @@ export function convert<TFrom extends Space, TTo extends Space>(
   const channelCount = spaces[from].channelCount;
   const channels = color.slice(0, channelCount) as number[];
   const alpha = color[channelCount];
-  const toXYZ = spaces[from].toXYZ as (...channels: number[]) => Coords;
-  const coords: readonly number[] =
-    (from as string) === (to as string)
-      ? channels
-      : spaces[to].fromXYZ(...toXYZ(...channels));
+  let coords: readonly number[];
+  if ((from as string) === (to as string)) {
+    // Shortcut for when the spaces are the same
+    coords = channels;
+  } else if (isRGBFamily(from) && isRGBFamily(to)) {
+    // Shortcut for spaces which both live in the world of RGB
+    const fromRGB = spaces[to].fromRGB;
+    const toRGB = spaces[from].toRGB as (...channels: number[]) => Coords;
+    coords = fromRGB(...toRGB(...channels));
+  } else {
+    const toXYZ = spaces[from].toXYZ as (...channels: number[]) => Coords;
+    coords = spaces[to].fromXYZ(...toXYZ(...channels));
+  }
   return (
     alpha === undefined ? coords : [...coords, alpha]
   ) as ParsedColor<TTo>;

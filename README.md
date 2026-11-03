@@ -99,6 +99,25 @@ mix('rgb', [255, 0, 0], [0, 0, 255]);
 | `fadeIn(space, color, amount)`          | Increases alpha by a ratio of its current value.           |
 | `fadeOut(space, color, amount)`         | Decreases alpha by a ratio of its current value.           |
 
+## Gamut mapping
+
+Out of gamut colours (e.g. RGB colours greater than 255) can be mapped into
+sRGB using the
+[CSS Color 4 gamut mapping algorithm](https://drafts.csswg.org/css-color-4/#binary-search-gamut-map-with-local-minde),
+which reduces OKLCH chroma while keeping lightness and hue.
+
+```ts
+import { inGamut, toGamut } from 'hueful';
+
+inGamut('rgb', [300, 0, 0]); // false
+toGamut('oklch', [0.7, 0.4, 30]); // [0.683, 0.206, 30.182]
+```
+
+| Function                 | Description                                                   |
+| ------------------------ | ------------------------------------------------------------- |
+| `inGamut(space, color)`  | Whether the colour can be displayed in sRGB.                  |
+| `toGamut(space, color)`  | Maps the colour into sRGB. In gamut colours are left as is.  |
+
 ## Analysis
 
 ```ts
